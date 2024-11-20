@@ -1,0 +1,408 @@
+--branch table
+create table Branch(
+	branch_code int primary key not null,
+	branch_name varchar(50) unique not null,
+	branch_city varchar(50) not null);
+insert into Branch values 
+(0, 'Gandhi Maidan', 'Patna'), 
+(1, 'L.B Nagar', 'Hyderabad'), 
+(2, 'Chandranagar', 'Palakkad'),
+(3, 'Koramangala', 'Bengaluru'),
+(4, 'Bandra', 'Mumbai'),
+(5, 'Beemli', 'Vizag');
+	
+--loan table
+create table Loan(
+	loan_id int primary key not null,
+	loan_amount numeric not null check(loan_amount>0),
+	loan_type varchar(50) not null,
+	loan_duration_months int not null,
+	interest_rate numeric not null,
+	monthly_payment numeric,
+	branch_code int references Branch (branch_code),	
+	start_date date default current_date);
+insert into loan values
+(0, 1000000, 'Education Loan', 48, 4.5, 25000, 0),
+(1, 2000000, 'Business Loan', 30, 7.5, 50000, 1),
+(2, 3000000, 'House Loan', 60, 5, 35000, 5),
+(3, 100000, 'Personal Loan', 10, 8, 20000, 2, '2024-04-12'),
+(4, 3000000, 'Car Loan', 36, 6, 30000, 4, '2024-03-26'),
+(5, 2000000, 'Land Loan', 30, 5.5, 40000, 3),
+(6, 500000, 'Personal Loan', 24, 6.5, 22500, 5),
+(7, 10000000, 'House Loan', 120, 7, 150000, 3);
+--customer table
+create table Customer(
+	customer_id int primary key not null,
+	customer_name varchar(50) not null,
+	birth_date date not null,
+	city_name varchar(50) not null,
+	state_name varchar(50) not null,
+	phone_number varchar(12) not null);
+insert into Customer values
+(0, 'Swarna Sai Sumanth', '2002-10-31', 'Vizag', 'Andhra Pradesh', '6969696969'),
+(1, 'Rohan', '2001-02-27', 'Hyderabad', 'Telangana', '8732521233'),
+(2, 'Manish', '2003-05-27', 'Bengaluru', 'Karnataka', '8389772123'),
+(3, 'Adnan', '2004-04-15', 'Patna', 'Bihar', '6191619919'),
+(4, 'Nakul', '2004-11-24', 'Palakkad', 'Kerala', '8888888888'),
+(5, 'Kajol', '1993-07-12', 'Mumbai', 'Maharashtra', '7281653921'),
+(6, 'Shreya', '2001-08-07', 'Bengaluru', 'Karnataka', '8632123128'),
+(7, 'Sameer', '1987-01-31', 'Patna', 'Bihar', '6719182313');
+
+--employee table
+create table Employee(
+	employee_id int primary key not null,
+	employee_name varchar(50) unique not null,
+	employee_role varchar(50) not null,
+	salary numeric not null check(salary>0),
+	mobile_number varchar(12) unique not null,
+	branch_code int references Branch (branch_code));
+insert into Employee values
+(0, 'Kiran', 'Manager',80000,'8125637990',1),
+(1, 'Mike', 'Manager',75000, '9846736215',0),
+(2, 'Vijay', 'Officer',50000,'9483725646',3),
+(3, 'Vaheed', 'Manager',80000,'7686657654',4),
+(4, 'Paul','Officer',60000,'77698945348',5),
+(5, 'Pranathi','Manager',85000, '9988765643',5 ),
+(6, 'Shruthi', 'Officer',45000,'9273645519',2),
+(7, 'Ravi', 'Manager',85000,'9499664490',3),
+(8, 'Ram', 'Officer',55000,'8156763990',1),
+(9, 'John', 'Officer',40000, '9846123215',0),
+(10, 'Venkat', 'Manager',70000,'8663455199',2),
+(11, 'Sharmila', 'Officer',50000,'7647557654',4);
+
+--payment table
+create table Payment(
+	payment_id int primary key not null,
+	payment_amount numeric not null,
+	payment_date date not null,
+	loan_id int references Loan (loan_id));
+insert into Payment values
+(0, 25000,'2024-03-07',0),
+(1, 50000,'2024-03-04',1),
+(2, 35000,'2024-03-01',2),
+(3, 20000,'2024-02-18',3),
+(4, 30000,'2024-02-12',4),
+(5, 40000,'2024-02-17',5),
+(6, 25000,'2024-02-07',0),
+(7, 30000,'2024-01-12',4),
+(8, 22500,'2024-01-03',6),
+(9, 150000,'2024-02-14',7),
+(10, 150000,'2024-01-14',7);
+
+--account table
+create table Account(
+	account_id int primary key not null,
+	account_type varchar(50) not null,
+	balance numeric ,
+	last_updated timestamp default current_timestamp not null,
+	branch_code int references Branch(branch_code));
+insert into Account values
+(0, 'Saving Account', 60000, current_timestamp, 0),
+(1, 'Zero Balance Account', 7000, '2024-03-04 11:42:35',1),
+(2, 'Checking Account', 20000, '2024-03-01 06:30:15',2),
+(3, 'Zero Balance Account', 3000, '2024-02-18 10:02:00',3),
+(4, 'Saving Account', 150000,current_timestamp, 4),
+(5, 'Checking Account', 15000, '2024-02-17 08:21:30',5),
+(6, 'Checking Account', 30000, current_timestamp, 0),
+(7, 'Zero Balance Account', 10000, '2024-01-12 00:00:00',4),
+(8, 'Saving Account', 80000, current_timestamp, 1),
+(9, 'Checking Account', 65000, '2024-02-14 07:12:09',3),
+(10, 'Saving Account', 200000, current_timestamp, 2);
+
+--depositor table
+create table Depositor(
+	customer_id int not null,
+	account_id int not null,
+	access_date date not null,
+	foreign key(customer_id) references Customer(customer_id),
+	foreign key(account_id) references Account(account_id),
+	primary key (customer_id, account_id));
+insert into Depositor values
+(0, 5, current_date),
+(1, 1, current_date),
+(2, 3, current_date),
+(3, 0, current_date),
+(4, 2, current_date),
+(5, 4, current_date),
+(6, 9, current_date),
+(7, 6, current_date),
+(4, 10, current_date),
+(5, 7, current_date),
+(1, 8, current_date);
+
+--borrower table
+create table Borrower(
+	customer_id int not null,
+	loan_id int not null,
+	foreign key(customer_id) references Customer(customer_id),
+	foreign key(loan_id) references Loan(loan_id),
+	primary key (customer_id, loan_id));
+insert into Borrower values
+(0, 2),
+(1, 1),
+(2, 5),
+(3, 0),
+(4, 3),
+(5, 4),
+(6, 5),
+(7, 0),
+(0, 6),
+(6, 7);
+
+--payment_log for pay_bills trigger
+create table payment_log(cid int, aid int, lid int);
+--task table
+create table task(task_type varchar(3),data jsonb,done int);
+
+-- procedure deposit
+create or replace procedure Deposit(amount_deposited numeric, aid int)
+as $$
+begin
+	update account
+	set balance = balance + amount_deposited
+	where account_id = aid;
+	update depositor
+	set access_date = current_date
+	where account_id = aid;
+end;$$ language plpgsql;
+
+--procedure withdraw
+create or replace procedure Withdraw(amount numeric,aid int)
+as $$
+begin
+	if((select balance from account where account_id=aid) < amount) then 
+		raise notice 'insufficient balance in account';
+	else
+		update account 
+		set balance=balance-amount where account_id=aid;
+		update depositor 
+		set access_date=current_date where account_id=aid;
+	end if;
+end;$$ language plpgsql;
+
+--procedure transfer
+create or replace procedure Transfer(sid int, rid int, amount numeric)
+as $$
+begin 
+    if((select balance from account where account_id=sid ) < amount) then
+		raise notice 'insufficient balance in sender account';
+    else
+    	update account 
+		set balance=balance-amount where account_id=sid;
+    	update account 
+		set balance=balance+amount where account_id=rid;
+		update depositor 
+		set access_date=current_date where account_id=sid;
+    end if;
+end;$$ language plpgsql;
+
+--procedure new account
+create or replace procedure create_new_account(fullname varchar(50),dob date,c_name varchar(50),s_name varchar(50),p_no varchar(12),acc_type varchar(50))
+as $$
+begin
+	insert into customer(customer_id,customer_name,birth_date,city_name,state_name,phone_number)
+	values((select max(customer_id) from customer)+1,fullname,dob,c_name,s_name,p_no);
+	insert into account(account_id,account_type,branch_code)
+	values (((select max(account_id) from account)+1),acc_type,(select branch_code from branch where branch_city=c_name));
+	insert into depositor(customer_id,account_id,access_date) 
+	values ((select max(customer_id) from customer),(select max(account_id) from account),current_date);
+end;$$ language plpgsql;
+
+--procedure another account
+create or replace procedure create_another_account(cid int,acc_type varchar(50))
+as $$
+begin
+	if(acc_type = any(select account.account_type from customer,depositor,account where customer.customer_id=cid and customer.customer_id=depositor.customer_id and depositor.account_id=account.account_id)) then 
+		raise notice 'account type already exisits';
+	else 
+		insert into account(account_id,account_type,branch_code)
+		values (((select max(account_id) from account)+1),acc_type,(select branch_code from branch where branch_city=(select city_name from customer where customer_id=c_id)));
+		insert into depositor(customer_id,account_id,access_date) 
+		values((select customer_id from customer where customer_id=cid),(select max(account_id) from account),current_date);
+	end if;
+end;$$ language plpgsql;
+
+--trigger for give balance according to account type
+create or replace function give_bal()
+returns trigger
+as $$
+begin
+	if((select account_type from account where account_id=new.account_id)= 'Zero Balance Account') then
+		update account 
+		set balance=0
+		where account_id=new.account_id;
+		return new;
+	else
+		update account 
+		set balance=5000
+		where account_id=new.account_id;
+		return new;
+	end if;
+end;$$ language plpgsql;
+
+create or replace trigger give_cal
+after insert
+on account
+for each row
+execute procedure give_bal();
+
+--procedure create loan
+create or replace procedure create_loan(cid int,l_amount numeric,l_type varchar(50),l_duration int,int_rate numeric)
+as $$
+begin
+	insert into loan(loan_id,loan_amount,loan_type,loan_duration_months,interest_rate,branch_code)
+	values((select max(loan_id) from loan)+1,l_amount,l_type,l_duration,int_rate,
+		   (select branch_code from branch where branch_city=(select city_name from customer where customer_id=cid)));
+	insert into borrower(customer_id,loan_id) 
+	values (cid,(select max(loan_id) from loan));
+	insert into payment(payment_id,payment_amount,payment_date,loan_id)
+	values((select max(payment_id) from payment)+1,0,current_date,(select max(loan_id) from loan));
+end;$$ language plpgsql;
+
+--trigger to get monthly payment
+create or replace function get_payment()
+returns trigger
+as $$
+declare pay_amount int;
+begin
+	pay_amount = ((select loan_amount from loan where loan_id=(select max(loan_id) from loan))*((select interest_rate from loan where loan_id=(select max(loan_id) from loan))/(12*100))*power(1+((select interest_rate from loan where loan_id=(select max(loan_id) from loan))/(12*100)),(select loan_duration_months from loan where loan_id=(select max(loan_id) from loan)))/(power(1+((select interest_rate from loan where loan_id=(select max(loan_id) from loan))/(12*100)),(select loan_duration_months from loan where loan_id=(select max(loan_id) from loan)))-1));
+	update loan 
+	set monthly_payment=pay_amount where loan_id=(select max(loan_id) from loan);	
+	return new;
+end;$$ language plpgsql;
+
+create or replace trigger get_monthly_payment
+after insert
+on loan
+for each row
+execute procedure get_payment();
+call create_loan(1, 100000, 'Education Loan', 24, 4.5);
+
+--procedure to pay loans
+create or replace procedure pay_bills(cid int, aid int, lid int)
+as $$
+declare amount int;
+declare bal int;
+declare monthly_amt numeric;
+begin
+select loan.monthly_payment from loan join borrower on borrower.loan_id = loan.loan_id
+join customer on customer.customer_id = borrower.customer_id where customer.customer_id = cid and loan.loan_id=lid into amount;
+select balance from account where account_id = aid into bal;
+if amount>bal then raise exception 'insufficient balance';
+else
+update account
+set balance = balance - amount, last_updated = current_date where account_id = aid;
+update loan
+set loan_amount = loan_amount - amount where loan_id = lid;
+insert into payment_log values(cid,aid,lid);
+end if;
+end;$$ language plpgsql;
+
+--trigger for payment_update
+create or replace function update_payment()
+returns trigger as $$
+declare amount numeric;
+declare lid int;
+begin
+	lid = new.lid;
+	select monthly_payment from loan where loan_id = lid into amount;
+    insert into payment (payment_id,payment_amount, payment_date, loan_id)
+    values ((select max(payment_id) from payment)+1,amount, current_date, lid);
+	update loan
+	set monthly_payment = ((select loan_amount from loan where loan_id=lid)*((select interest_rate from loan where loan_id=lid)/(12*100))*power(1+((select interest_rate from loan where loan_id=lid)/(12*100)),(select loan_duration_months from loan where loan_id=lid))/(power(1+((select interest_rate from loan where loan_id=lid)/(12*100)),(select loan_duration_months from loan where loan_id=lid))-1))
+	where loan_id = lid;
+    return new;
+end;$$ language plpgsql;
+
+create or replace trigger pay_update
+after insert on payment_log
+for each row
+execute function update_payment();
+
+--function show_balance
+create or replace function Show_balance(cid int)
+returns table(account_id int, account_type varchar(50), balance numeric)
+as $$
+begin
+	return query
+	select Account.account_id, Account.account_type, Account.balance from Customer, Depositor, Account
+	where Customer.customer_id = cid 
+	and Customer.customer_id = Depositor.customer_id
+	and Depositor.account_id = Account.account_id;
+end;$$ language plpgsql;
+
+--function no of accounts
+create or replace function no_of_accounts(cid int,out ans int)
+as $$
+begin
+	select count(*) into ans from depositor 
+	group by(customer_id) having customer_id=cid;
+end;$$ language plpgsql;
+
+--view for customer details
+create or replace view customer_details
+as
+select customer.customer_name, customer.birth_date, customer.city_name||', '||customer.state_name as address, string_agg(account.account_type,', ') as all_account_types from customer
+join depositor on customer.customer_id=depositor.customer_id
+join account on depositor.account_id=account.account_id
+group by customer.customer_id;
+
+select * from customer_details;
+
+--view for customers and their loans
+create or replace view customer_loan 
+as
+select customer.customer_id,customer.customer_name, loan.loan_id, loan.loan_amount from customer
+join borrower on customer.customer_id=borrower.customer_id
+join loan on borrower.loan_id=loan.loan_id;
+
+--view for payment done by a customer for a loan
+create or replace view payment_for_loan 
+as
+select customer.customer_id,customer.customer_name,payment.payment_amount,payment.loan_id from customer
+join borrower on customer.customer_id=borrower.customer_id
+join payment on payment.loan_id = borrower.loan_id;
+
+--create role officer
+create role officer login password 'Officer';
+grant select on all tables in schema public to officer;
+grant execute on all functions in schema public to officer;
+grant execute on all procedures in schema public to officer;
+grant insert, update, delete on branch, loan, customer, payment, account, depositor, borrower to officer;
+
+--create manager role
+create role manager;
+grant all privileges on all tables in schema public to manager;
+grant execute on all functions in schema public to manager; 
+grant execute on all procedures in schema public to manager;
+grant select on all tables in schema public to manager;
+
+--create role customer_of_bank
+create role customer_of_bank
+login password 'customer';
+grant select on customer, account, loan, payment to customer_of_bank;
+
+--index for customer_id
+create index ind_cid on customer using hash(customer_id);
+--index for account id
+create index ind_aid on account using hash (account_id);
+--index for balance
+create index ind_bal on account using Btree (account_id);
+--index for employee_id
+create index ind_emp_id on employee using hash (employee_id);
+--index for salary
+create index ind_salary on employee using Btree (salary);
+--index for loan amount
+create index ind_loan_amount on loan using Btree (loan_amount);
+--index for loan_id
+create index ind_lid on loan using hash (loan_id);
+--index for loan amount including loan_type
+create index ind_l on loan(loan_amount) include(loan_type);
+
+select * from customer
+
+select * from employee
+
+select * from branch
+
+
